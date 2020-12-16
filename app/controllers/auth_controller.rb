@@ -3,17 +3,15 @@ class AuthController < ApplicationController
   before_action :validate_user_token, only: :me
 
   def sign_in
-    user = User.create! sign_in_params
-    user_token = create_user_token user
-    render json:
-             user_response(
-               email: user_token.user.email,
-               id: user_token.user.id,
-               token: user_token.token
-             ),
-           status: :created
-  rescue StandardError
-    render json: user.errors, status: :unprocessable_entity
+    user = User.new sign_in_params
+    if user.valid?
+      user.save!
+      user_token = create_user_token user
+      render json: user_response(email: user.email, id: user.id, token: user_token.token),
+             status: :created
+    else
+      render json: user.errors, status: :unprocessable_entity
+    end
   end
 
   def me
@@ -31,12 +29,7 @@ class AuthController < ApplicationController
     if user && valid_user_session?(user)
       create_user_token user
       render status: :ok,
-             json:
-               user_response(
-                 email: user.email,
-                 id: user.id,
-                 token: user.user_token.token
-               )
+             json: user_response(email: user.email, id: user.id, token: user.user_token.token)
     else
       render status: :unauthorized
     end
