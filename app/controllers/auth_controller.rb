@@ -1,5 +1,5 @@
 class AuthController < ApplicationController
-  before_action :validate_public_token, only: :sign_in
+  before_action :validate_public_token, only: %i[sign_in login]
   before_action :validate_user_token, only: :me
 
   def sign_in
@@ -21,9 +21,36 @@ class AuthController < ApplicationController
            status: :ok
   end
 
+  def login
+    if valid_user?
+      render status: :ok,
+             json: {
+               email: login_user.email,
+               id: login_user.id,
+               access_token: login_user.user_token.token
+             }
+    else
+      render status: :unauthorized
+    end
+  end
+
   private
 
   def sign_in_params
     params.permit(:email, :password, :password_confirmation)
+  end
+
+  def valid_user?
+    login_user.authenticate login_params[:password]
+  rescue StandardError
+    false
+  end
+
+  def login_params
+    params.permit(:email, :password)
+  end
+
+  def login_user
+    User.find_by email: login_params[:email]
   end
 end
