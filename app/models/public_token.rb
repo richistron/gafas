@@ -5,6 +5,6 @@ class PublicToken < ApplicationRecord
   private
 
   def set_expiration_date
-    self.expires = DateTime.now.next_month 1
+    self.expires = DateTime.now.next_year 1
   end
 end
