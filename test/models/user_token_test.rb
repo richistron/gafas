@@ -1,7 +1,7 @@
-require "test_helper"
+require 'test_helper'
 
 class UserTokenTest < ActiveSupport::TestCase
-  test "the truth" do
+  test 'the truth' do
     user = User.first
     user_token = UserToken.create! user: user
     expire_time = DateTime.parse user_token.expires.to_s
