@@ -4,7 +4,7 @@ class AuthController < ApplicationController
 
   def sign_in
     user = User.create! sign_in_params
-    user_token = UserToken.create! user: user
+    user_token = create_user_token user
     render json:
              user_response(
                email: user_token.user.email,
@@ -27,13 +27,15 @@ class AuthController < ApplicationController
   end
 
   def login
-    if valid_user?
+    user = User.find_by email: login_params[:email]
+    if user && valid_user_session?(user)
+      create_user_token user
       render status: :ok,
              json:
                user_response(
-                 email: login_user.email,
-                 id: login_user.id,
-                 token: login_user.user_token.token
+                 email: user.email,
+                 id: user.id,
+                 token: user.user_token.token
                )
     else
       render status: :unauthorized
@@ -42,25 +44,25 @@ class AuthController < ApplicationController
 
   private
 
+  def login_params
+    params.permit :email, :password
+  end
+
   def user_response(email:, id:, token:)
     { user: { email: email, id: id, access_token: token } }
   end
 
   def sign_in_params
-    params.permit(:email, :password, :password_confirmation)
+    params.permit :email, :password, :password_confirmation
   end
 
-  def valid_user?
-    login_user.authenticate login_params[:password]
+  def valid_user_session?(user)
+    user.authenticate login_params[:password]
   rescue StandardError
     false
   end
 
-  def login_params
-    params.permit(:email, :password)
-  end
-
-  def login_user
-    User.find_by email: login_params[:email]
+  def create_user_token(user)
+    UserToken.create! user: user unless user.user_token
   end
 end
