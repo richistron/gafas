@@ -1,0 +1,6 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  email: richistron@gmail.com
+  password_digest: asdlfkjadsfkajsdf2324kj234klj234lk234
+
