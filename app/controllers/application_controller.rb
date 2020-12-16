@@ -1,11 +1,10 @@
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Basic::ControllerMethods
   include ActionController::HttpAuthentication::Token::ControllerMethods
-  before_action :validate_token
 
   private
 
-  def validate_token
+  def validate_public_token
     authenticate_or_request_with_http_token do |token|
       begin
         public = PublicToken.find_by token: token
@@ -15,6 +14,18 @@ class ApplicationController < ActionController::API
       rescue
         false
       end
+    end
+  end
+
+  def validate_user_token
+    authenticate_or_request_with_http_token do |token|
+      user_token = UserToken.find_by token: token
+      @session = {
+        user: user_token.user,
+        token: token
+      }
+    rescue
+      false
     end
   end
 end
