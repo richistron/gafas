@@ -20,7 +20,8 @@ class ApplicationController < ActionController::API
   def validate_user_token
     authenticate_or_request_with_http_token do |token|
       user_token = UserToken.find_by token: token
-      @session = { user: user_token.user, token: token }
+      @user_token = user_token
+      @user_token.try(:token)
     rescue StandardError
       false
     end
