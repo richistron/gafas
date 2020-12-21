@@ -20,12 +20,7 @@ class ApplicationController < ActionController::API
     authenticate_or_request_with_http_token do |token|
       user_token = UserToken.find_by token: token
       @user_token = user_token
-      if is_token_valid user_token
-        true
-      else
-        user_token.try(:destroy)
-        false
-      end
+      is_token_valid(@user_token) { @user_token.destroy }
     end
   end
 
@@ -34,7 +29,8 @@ class ApplicationController < ActionController::API
 
     expires = DateTime.parse user_token.expires.to_s
     now = DateTime.now
-
-    expires > now
+    is_valid = expires > now
+    yield if block_given? && !is_valid
+    is_valid
   end
 end
