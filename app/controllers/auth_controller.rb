@@ -2,18 +2,6 @@ class AuthController < ApplicationController
   before_action :validate_public_token, only: %i[sign_in login]
   before_action :validate_user_token, only: :me
 
-  def sign_in
-    user = User.new sign_in_params
-    if user.valid?
-      user.save!
-      user_token = create_user_token user
-      render json: user_response(email: user.email, id: user.id, token: user_token.token),
-             status: :created
-    else
-      render json: user.errors, status: :unprocessable_entity
-    end
-  end
-
   def me
     render json:
              user_response(
@@ -48,10 +36,6 @@ class AuthController < ApplicationController
 
   def user_response(email:, id:, token:)
     { user: { email: email, id: id, access_token: token } }
-  end
-
-  def sign_in_params
-    params.permit :email, :password, :password_confirmation
   end
 
   def valid_user_session?(user)
