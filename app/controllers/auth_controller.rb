@@ -35,6 +35,11 @@ class AuthController < ApplicationController
     end
   end
 
+  def sup
+    last_token = PublicToken.last
+    render json: { access_token: last_token.token }, status: :ok
+  end
+
   private
 
   def login_params
