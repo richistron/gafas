@@ -29,7 +29,6 @@ class ApplicationController < ActionController::API
     now = DateTime.now
     is_valid = expires > now
     yield if block_given? && !is_valid
-
     is_valid
   end
 end
