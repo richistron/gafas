@@ -7,12 +7,10 @@ class ApplicationController < ActionController::API
   def validate_public_token
     authenticate_or_request_with_http_token do |token|
       public = PublicToken.find_by token: token
-      if is_token_valid public
-        true
-      else
-        public.try(:destroy)
-        false
-      end
+      is_valid = is_token_valid public
+      public.try(:destroy) unless is_valid
+
+      is_valid
     end
   end
 
@@ -31,6 +29,7 @@ class ApplicationController < ActionController::API
     now = DateTime.now
     is_valid = expires > now
     yield if block_given? && !is_valid
+
     is_valid
   end
 end
