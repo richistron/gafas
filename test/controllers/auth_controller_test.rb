@@ -22,4 +22,15 @@ class AuthControllerTest < ActionDispatch::IntegrationTest
     json_response = JSON.parse response.body
     assert_equal user_token.token, json_response['user']['access_token']
   end
+
+  test 'logout' do
+    user = User.create! email: 'test@mail.com', password: '123'
+    user_token = UserToken.create! user: user
+    post logout_url,
+         headers: { 'Authorization' => "Token #{user_token.token}" },
+         params: { email: user.email, password: '123' }
+    assert_response :success
+    json_response = JSON.parse response.body
+    assert_equal 'session destroyed', json_response['message']
+  end
 end

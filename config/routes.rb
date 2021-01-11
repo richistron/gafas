@@ -6,4 +6,5 @@ Rails
     post '/me', to: 'auth#me'
     post '/login', to: 'auth#login'
     post '/sup', to: 'auth#sup'
+    post '/logout', to: 'auth#logout'
   end

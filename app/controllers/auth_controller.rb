@@ -1,6 +1,6 @@
 class AuthController < ApplicationController
   before_action :validate_public_token, only: %i[sign_in login]
-  before_action :validate_user_token, only: :me
+  before_action :validate_user_token, only: %i[logout me]
 
   def me
     render json:
@@ -26,6 +26,11 @@ class AuthController < ApplicationController
   def sup
     last_token = PublicToken.last
     render json: { access_token: last_token.token }, status: :ok
+  end
+
+  def logout
+    @user_token.try(:destroy)
+    render status: :ok, json: { message: 'session destroyed' }
   end
 
   private
